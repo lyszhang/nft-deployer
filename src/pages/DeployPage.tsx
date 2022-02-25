@@ -82,18 +82,18 @@ const DeployPage = (props: RouteComponentProps) => {
                         </CardContent>
                     </Card>
                 )}
-                {account && (
-                    <Card className={classes.root}>
-                        <CardContent>
-                            <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                Ether balance:
-                            </Typography>
-                            <Typography variant="h5" component="h2">
-                                {userBalance ? `${formatEther(userBalance)} ETH` : `Loading...`}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                )}
+                {/*{account && (*/}
+                {/*    <Card className={classes.root}>*/}
+                {/*        <CardContent>*/}
+                {/*            <Typography className={classes.title} color="textSecondary" gutterBottom>*/}
+                {/*                Ether balance:*/}
+                {/*            </Typography>*/}
+                {/*            <Typography variant="h5" component="h2">*/}
+                {/*                {userBalance ? `${formatEther(userBalance)} ETH` : `Loading...`}*/}
+                {/*            </Typography>*/}
+                {/*        </CardContent>*/}
+                {/*    </Card>*/}
+                {/*)}*/}
             </div>
             {account && (
             <>
