@@ -30,3 +30,8 @@ export const getEtherscanLink = (hash : string, type : string, chainId : number)
 	console.error('getEtherscanLink should be provided either "tx" or "address" as the type')
 	return undefined;
 }
+
+export const getIPFSLink = (hash : string) => {
+	let baseURL = 'https://infura-ipfs.io';
+	return `${baseURL}/ipfs/${hash}`;
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ImageUploading, { ImageListType } from "react-images-uploading";
 
 import { Contract, utils } from 'ethers';
 
@@ -21,7 +22,7 @@ import { TextField } from 'formik-material-ui';
 import { useEtherBalance, useEthers } from '@usedapp/core'
 import { formatEther } from '@ethersproject/units'
 
-import { getEtherscanLink } from '../utils';
+import { getEtherscanLink, getIPFSLink } from '../utils';
 import { ERC721ABI } from '../utils/constants';
 
 const useStyles = makeStyles({
@@ -69,7 +70,24 @@ const MintPage = (props: RouteComponentProps & IMintProps) => {
     const [ mintTransactionSuccessful, setMintTransactionSuccessful] = useState<boolean | string>(false)
     const [ currentKey, setCurrentKey ] = useState(0)
 
+    const [ ipfsHash, setIpfsHash] = useState<boolean | string>(false)
+    const [ contractAddress, setContractAddress] = useState<boolean | string>(false)
+    const [ mintToAddress, setMintToAddress] = useState<boolean | string>(false)
+
     const userBalance = useEtherBalance(account)
+
+    const [images, setImages] = React.useState([]);
+    const maxNumber = 69;
+
+    const onChange = (
+        imageList: ImageListType,
+        addUpdateIndex: number[] | undefined
+    ) => {
+        // data for submit
+        console.log(imageList, addUpdateIndex);
+        setImages(imageList as never[]);
+    };
+
 
     useEffect(() => {
         setCurrentKey(currentKey + 1);
@@ -161,6 +179,10 @@ const MintPage = (props: RouteComponentProps & IMintProps) => {
                             setPendingMintTransaction(false);
                             setMintTransactionSuccessful(transactionHash);
 
+                            setIpfsHash(values.hash)
+                            setMintToAddress(values.mintToAddress)
+                            setContractAddress(values.contractAddress)
+
                         }catch(error){
                             console.log({error})
                             setSubmitting(false);
@@ -184,6 +206,42 @@ const MintPage = (props: RouteComponentProps & IMintProps) => {
                                     variant="outlined"
                                     style={{width: '456px', maxWidth: '100%'}}
                                 />
+                                <ImageUploading
+                                    multiple
+                                    value={images}
+                                    onChange={onChange}
+                                    maxNumber={maxNumber}
+                                >
+                                    {({
+                                          imageList,
+                                          onImageUpload,
+                                          onImageRemoveAll,
+                                          onImageUpdate,
+                                          onImageRemove,
+                                          isDragging,
+                                          dragProps
+                                      }) => (
+                                        // write your building UI
+                                        <div className="upload__image-wrapper">
+                                            <button
+                                                style={isDragging ? { color: "red" } : undefined}
+                                                onClick={onImageUpload}
+                                                {...dragProps}
+                                            >
+                                                Click or Drop here
+                                            </button>
+                                            {imageList.map((image, index) => (
+                                                <div key={index} className="image-item">
+                                                    <img src={image.dataURL} alt="" width="100" />
+                                                    <div className="image-item__btn-wrapper">
+                                                        <button onClick={() => onImageUpdate(index)}>Update</button>
+                                                        <button onClick={() => onImageRemove(index)}>Remove</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </ImageUploading>
                                 <Field
                                     component={TextField}
                                     name="hash"
@@ -221,12 +279,15 @@ const MintPage = (props: RouteComponentProps & IMintProps) => {
                         {(isAwaitingMetaMaskConfirmation || pendingMintTransaction || mintTransactionSuccessful) &&
                             <div>
                                 {isAwaitingMetaMaskConfirmation && `Please Check MetaMask`}
-                                {chainId && pendingMintTransaction && typeof pendingMintTransaction === "string" && 
+                                {chainId && pendingMintTransaction && typeof pendingMintTransaction === "string" &&
                                     <span>Pending Mint Transaction: <a style={{color: '#39bfff'}} href={getEtherscanLink(pendingMintTransaction, 'tx', chainId)} target="_blank" rel="noreferrer noopener">View On Etherscan</a></span>
                                 }
-                                {chainId && mintTransactionSuccessful && typeof mintTransactionSuccessful === "string" && 
+                                {chainId && mintTransactionSuccessful && typeof mintTransactionSuccessful === "string" && typeof ipfsHash === "string" &&
                                     <div style={{textAlign: 'center', display: 'flex', flexDirection: 'column'}}>
                                         <span>Mint Transaction Successful: <a style={{color: '#39bfff'}} href={getEtherscanLink(mintTransactionSuccessful, 'tx', chainId)} target="_blank" rel="noreferrer noopener">View On Etherscan</a></span>
+                                        <span>IPFS: <a style={{color: '#39bfff'}} href={getIPFSLink(ipfsHash)} target="_blank" rel="noreferrer noopener"> { ipfsHash } </a></span>
+                                        <span>Token ID: { contractAddress }_{ Math.floor(Math.random()*10000000)}; </span>
+                                        <span>Owner: { mintToAddress } </span>
                                         <span style={{marginTop: 15}}>What's Next?</span>
                                         {/* <Button
                                             variant="contained"
